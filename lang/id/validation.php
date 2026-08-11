@@ -1,0 +1,48 @@
+<?php
+
+return [
+    'accepted' => ':attribute harus diterima.',
+    'between' => [
+        'numeric' => ':attribute harus antara :min dan :max.',
+        'string' => ':attribute harus antara :min dan :max karakter.',
+    ],
+    'confirmed' => 'Konfirmasi :attribute tidak cocok.',
+    'date' => ':attribute bukan tanggal yang valid.',
+    'email' => ':attribute harus berupa alamat email yang valid.',
+    'exists' => ':attribute yang dipilih tidak valid.',
+    'in' => ':attribute yang dipilih tidak valid.',
+    'integer' => ':attribute harus berupa bilangan bulat.',
+    'max' => [
+        'numeric' => ':attribute tidak boleh lebih dari :max.',
+        'string' => ':attribute tidak boleh lebih dari :max karakter.',
+        'file' => ':attribute tidak boleh lebih dari :max kilobyte.',
+    ],
+    'min' => [
+        'numeric' => ':attribute minimal :min.',
+        'string' => ':attribute minimal :min karakter.',
+        'file' => ':attribute minimal :min kilobyte.',
+    ],
+    'numeric' => ':attribute harus berupa angka.',
+    'required' => ':attribute wajib diisi.',
+    'required_if' => ':attribute wajib diisi.',
+    'required_with' => ':attribute wajib diisi.',
+    'string' => ':attribute harus berupa teks.',
+    'unique' => ':attribute sudah digunakan.',
+    'url' => ':attribute harus berupa URL yang valid.',
+    'image' => ':attribute harus berupa gambar.',
+    'mimes' => ':attribute harus berupa file: :values.',
+    'file' => ':attribute harus berupa file.',
+    'boolean' => ':attribute harus bernilai true atau false.',
+    'array' => ':attribute harus berupa array.',
+    'date_format' => ':attribute tidak sesuai format :format.',
+    'after' => ':attribute harus setelah :date.',
+    'after_or_equal' => ':attribute harus setelah atau sama dengan :date.',
+    'before' => ':attribute harus sebelum :date.',
+    'before_or_equal' => ':attribute harus sebelum atau sama dengan :date.',
+    'size' => [
+        'numeric' => ':attribute harus :size.',
+        'string' => ':attribute harus :size karakter.',
+    ],
+    'sometimes' => '',
+    'regex' => 'Format :attribute tidak valid.',
+];

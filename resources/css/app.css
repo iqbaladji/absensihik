@@ -1,0 +1,75 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../js/**/*.vue';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-brand-50: #eef4fb;
+    --color-brand-100: #d6e4f5;
+    --color-brand-600: #1f3864;
+    --color-brand-700: #1a2f55;
+    --color-brand-800: #16274a;
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition
+        disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1;
+    }
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition
+        disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1
+        bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-600;
+    }
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition
+        disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1
+        bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50;
+    }
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition
+        disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1
+        bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-600;
+    }
+    .btn-success {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition
+        disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1
+        bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-600;
+    }
+    .btn-warning {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition
+        disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1
+        bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500;
+    }
+    .btn-sm { @apply px-2.5 py-1.5 text-xs; }
+
+    .input {
+        @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800
+        placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600;
+    }
+    .label { @apply mb-1 block text-sm font-medium text-slate-600; }
+    .select { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600; }
+    .textarea { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600; }
+
+    .card { @apply rounded-xl border border-slate-200 bg-white shadow-sm; }
+    .card-pad { @apply rounded-xl border border-slate-200 bg-white shadow-sm p-5; }
+
+    .table-wrap { @apply overflow-x-auto rounded-xl border border-slate-200 bg-white; }
+    .tbl { @apply w-full text-left text-sm; }
+    .tbl thead th { @apply whitespace-nowrap bg-slate-50 px-4 py-3 font-semibold text-slate-600; }
+    .tbl tbody td { @apply whitespace-nowrap border-t border-slate-100 px-4 py-3 text-slate-700; }
+    .tbl tbody tr:hover { @apply bg-slate-50/60; }
+
+    .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium; }
+    .badge-green { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700; }
+    .badge-gray { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-slate-100 text-slate-600; }
+    .badge-amber { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700; }
+    .badge-red { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-100 text-rose-700; }
+    .badge-blue { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-brand-100 text-brand-700; }
+}
+
+html, body, #app { height: 100%; }
+body { @apply bg-slate-100 text-slate-800 antialiased; }
