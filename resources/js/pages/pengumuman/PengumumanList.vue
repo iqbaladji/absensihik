@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import api, { errMsg } from '../../api';
 import { useAuth } from '../../stores/auth';
 import { toastOk, toastErr } from '../../toast';
@@ -8,8 +8,24 @@ import PageHeader from '../../components/PageHeader.vue';
 import DataTable from '../../components/DataTable.vue';
 import Pagination from '../../components/Pagination.vue';
 import Modal from '../../components/Modal.vue';
+import MobileSubHeader from '../../components/MobileSubHeader.vue';
 
 const auth = useAuth();
+const isPegawaiMobile = computed(() => auth.roleSlug === 'pegawai');
+
+function prioritasCls(p) {
+    const v = String(p || '').toLowerCase();
+    if (v === 'urgent') return 'bg-rose-500 text-white';
+    if (v === 'tinggi') return 'bg-amber-400 text-white';
+    if (v === 'rendah') return 'bg-slate-300 text-slate-700';
+    return 'bg-hijau-100 text-hijau-700';
+}
+
+function snippet(txt, len = 120) {
+    if (!txt) return '';
+    const clean = String(txt).replace(/\s+/g, ' ').trim();
+    return clean.length > len ? clean.slice(0, len) + '…' : clean;
+}
 const canCreate = auth.can('pengumuman', 'C');
 const canPublish = auth.can('pengumuman', 'P');
 
@@ -98,18 +114,45 @@ async function retract(row) {
 </script>
 
 <template>
-    <PageHeader title="Pengumuman" subtitle="Daftar pengumuman internal">
-        <template #actions><button v-if="canCreate" class="btn-primary" @click="openCreate">+ Buat</button></template>
-    </PageHeader>
-    <DataTable :columns="columns" :rows="rows" :loading="loading">
-        <template #actions="{ row }">
-            <RouterLink :to="`/pengumuman/${row.id}`" class="btn-ghost btn-sm">Detail</RouterLink>
-            <button v-if="canCreate && row.status === 'draft'" class="btn-ghost btn-sm" @click="openEdit(row)">Edit</button>
-            <button v-if="canPublish && row.status === 'draft'" class="btn-ghost btn-sm text-emerald-600" @click="publish(row)">Publish</button>
-            <button v-if="canPublish && row.status === 'published'" class="btn-ghost btn-sm text-amber-600" @click="retract(row)">Tarik</button>
-        </template>
-    </DataTable>
-    <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    <div v-if="isPegawaiMobile" class="lg:hidden">
+        <MobileSubHeader title="Pengumuman" to="/" />
+        <div v-if="loading" class="py-10 text-center text-sm text-slate-400">Memuat...</div>
+        <div v-else-if="!rows.length" class="py-10 text-center text-sm text-slate-400">Belum ada pengumuman.</div>
+        <div v-else class="mt-3 space-y-3 pb-24">
+            <RouterLink v-for="row in rows" :key="row.id" :to="`/pengumuman/${row.id}`"
+                        class="block rounded-xl bg-white p-4 shadow-sm active:bg-slate-50">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <div class="text-sm font-semibold text-slate-800 line-clamp-2">{{ row.judul }}</div>
+                        <div class="mt-0.5 text-xs text-slate-500">{{ row.jenis?.nama || '-' }} · {{ tanggal(row.published_at || row.created_at) }}</div>
+                    </div>
+                    <span v-if="row.prioritas && row.prioritas !== 'normal'"
+                          class="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase" :class="prioritasCls(row.prioritas)">
+                        {{ row.prioritas }}
+                    </span>
+                </div>
+                <div class="mt-2 text-xs leading-relaxed text-slate-600">{{ snippet(row.isi) }}</div>
+                <div v-if="row.wajib_konfirmasi" class="mt-2 inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                    <span>Perlu konfirmasi baca</span>
+                </div>
+            </RouterLink>
+        </div>
+    </div>
+
+    <template v-else>
+        <PageHeader title="Pengumuman" subtitle="Daftar pengumuman internal">
+            <template #actions><button v-if="canCreate" class="btn-primary" @click="openCreate">+ Buat</button></template>
+        </PageHeader>
+        <DataTable :columns="columns" :rows="rows" :loading="loading">
+            <template #actions="{ row }">
+                <RouterLink :to="`/pengumuman/${row.id}`" class="btn-ghost btn-sm">Detail</RouterLink>
+                <button v-if="canCreate && row.status === 'draft'" class="btn-ghost btn-sm" @click="openEdit(row)">Edit</button>
+                <button v-if="canPublish && row.status === 'draft'" class="btn-ghost btn-sm text-emerald-600" @click="publish(row)">Publish</button>
+                <button v-if="canPublish && row.status === 'published'" class="btn-ghost btn-sm text-amber-600" @click="retract(row)">Tarik</button>
+            </template>
+        </DataTable>
+        <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    </template>
 
     <Modal v-if="showForm" :title="editing ? 'Edit Pengumuman' : 'Buat Pengumuman'" wide @close="showForm = false">
         <form @submit.prevent="save" class="space-y-4">

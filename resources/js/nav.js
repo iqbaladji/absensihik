@@ -10,36 +10,36 @@ export const navGroups = [
     {
         label: 'Kehadiran',
         items: [
-            { label: 'Presensi', to: '/presensi', icon: '⏰', modul: 'presensi' },
-            { label: 'Riwayat Presensi', to: '/presensi/riwayat', icon: '\u{1F4C5}', modul: 'presensi' },
+            { label: 'Presensi', to: '/presensi', icon: '⏰', modul: 'presensi', personal: true },
+            { label: 'Riwayat Presensi', to: '/presensi/riwayat', icon: '\u{1F4C5}', modul: 'presensi', personal: true },
             { label: 'Tim Saya', to: '/presensi/tim', icon: '\u{1F465}', modul: 'presensi_tim' },
             { label: 'Verifikasi', to: '/presensi/verifikasi', icon: '✅', modul: 'verifikasi' },
-            { label: 'Koreksi', to: '/presensi/koreksi', icon: '✏️', modul: 'presensi' },
+            { label: 'Koreksi', to: '/presensi/koreksi', icon: '✏️', modul: 'presensi', personal: true },
         ],
     },
     {
         label: 'Tugas & Lokasi',
         items: [
-            { label: 'Dinas Luar', to: '/dinas-luar', icon: '\u{1F697}', modul: 'dinas_luar' },
-            { label: 'WFH', to: '/wfh', icon: '\u{1F3E0}', modul: 'wfh' },
-            { label: 'WFA', to: '/wfa', icon: '\u{1F30D}', modul: 'wfa' },
+            { label: 'Dinas Luar', to: '/dinas-luar', icon: '\u{1F697}', modul: 'dinas_luar', personal: true },
+            { label: 'WFH', to: '/wfh', icon: '\u{1F3E0}', modul: 'wfh', personal: true },
+            { label: 'WFA', to: '/wfa', icon: '\u{1F30D}', modul: 'wfa', personal: true },
         ],
     },
     {
         label: 'Izin & Cuti',
         items: [
-            { label: 'Izin', to: '/izin', icon: '\u{1F4DD}', modul: 'izin' },
-            { label: 'Cuti Tahunan', to: '/cuti-tahunan', icon: '\u{1F3D6}️', modul: 'cuti_tahunan' },
-            { label: 'Block Leave', to: '/block-leave', icon: '\u{1F4E6}', modul: 'block_leave' },
-            { label: 'Cuti Melahirkan', to: '/cuti-melahirkan', icon: '\u{1F476}', modul: 'cuti_melahirkan' },
-            { label: 'Cuti Besar', to: '/cuti-besar', icon: '\u{1F396}️', modul: 'cuti_besar' },
-            { label: 'Saldo Cuti', to: '/saldo-cuti', icon: '\u{1F4B0}', modul: 'cuti_tahunan' },
+            { label: 'Izin', to: '/izin', icon: '\u{1F4DD}', modul: 'izin', personal: true },
+            { label: 'Cuti Tahunan', to: '/cuti-tahunan', icon: '\u{1F3D6}️', modul: 'cuti_tahunan', personal: true },
+            { label: 'Block Leave', to: '/block-leave', icon: '\u{1F4E6}', modul: 'block_leave', personal: true },
+            { label: 'Cuti Melahirkan', to: '/cuti-melahirkan', icon: '\u{1F476}', modul: 'cuti_melahirkan', personal: true },
+            { label: 'Cuti Besar', to: '/cuti-besar', icon: '\u{1F396}️', modul: 'cuti_besar', personal: true },
+            { label: 'Saldo Cuti', to: '/saldo-cuti', icon: '\u{1F4B0}', modul: 'cuti_tahunan', personal: true },
         ],
     },
     {
         label: 'Lembur',
         items: [
-            { label: 'Pengajuan Lembur', to: '/lembur', icon: '\u{23F1}️', modul: 'lembur' },
+            { label: 'Pengajuan Lembur', to: '/lembur', icon: '\u{23F1}️', modul: 'lembur', personal: true },
         ],
     },
     {
@@ -51,7 +51,7 @@ export const navGroups = [
     {
         label: 'Payslip',
         items: [
-            { label: 'Slip Gaji Saya', to: '/payslip', icon: '\u{1F4B5}', modul: 'payslip' },
+            { label: 'Slip Gaji Saya', to: '/payslip', icon: '\u{1F4B5}', modul: 'payslip', personal: true },
             { label: 'Kelola Payslip', to: '/payslip-admin', icon: '\u{1F4CA}', modul: 'payslip_admin' },
         ],
     },

@@ -10,7 +10,7 @@ class BlockLeave extends Model
     protected $table = 't_block_leave';
 
     protected $fillable = [
-        'id_user', 'id_periode', 'tanggal_mulai', 'tanggal_selesai',
+        'id_user', 'id_pengganti', 'id_periode', 'tanggal_mulai', 'tanggal_selesai',
         'jumlah_hari_kerja', 'alasan', 'status', 'approval_snapshot',
     ];
 
@@ -29,5 +29,10 @@ class BlockLeave extends Model
     public function periode(): BelongsTo
     {
         return $this->belongsTo(BlockLeavePeriode::class, 'id_periode');
+    }
+
+    public function pengganti(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id_pengganti');
     }
 }

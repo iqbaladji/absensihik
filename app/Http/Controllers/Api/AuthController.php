@@ -68,12 +68,12 @@ class AuthController extends ApiController
 
     public function changePin(Request $request): JsonResponse
     {
-        $request->validate([
-            'pin_lama' => 'required|string',
-            'pin_baru' => 'required|string|digits:6|confirmed',
-        ]);
-
         $user = $request->user();
+        $rules = ['pin_baru' => 'required|string|digits:6|confirmed'];
+        if ($user->pin_payslip) {
+            $rules['pin_lama'] = 'required|string';
+        }
+        $request->validate($rules);
 
         if ($user->pin_payslip && ! Hash::check($request->pin_lama, $user->pin_payslip)) {
             return response()->json(['message' => 'PIN lama salah.'], 422);
@@ -95,6 +95,7 @@ class AuthController extends ApiController
             'username' => $user->username,
             'nip' => $user->nip,
             'status' => $user->status,
+            'has_pin' => (bool) $user->pin_payslip,
             'role' => $user->role ? [
                 'slug' => $user->role->slug,
                 'nama' => $user->role->nama,

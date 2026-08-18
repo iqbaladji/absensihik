@@ -12,6 +12,12 @@
     --color-brand-600: #1f3864;
     --color-brand-700: #1a2f55;
     --color-brand-800: #16274a;
+    --color-hijau-50: #f0fdf4;
+    --color-hijau-100: #dcfce7;
+    --color-hijau-500: #22c55e;
+    --color-hijau-600: #16a34a;
+    --color-hijau-700: #15803d;
+    --color-hijau-800: #166534;
 }
 
 @layer components {
@@ -23,6 +29,11 @@
         @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition
         disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1
         bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-600;
+    }
+    .btn-hijau {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition
+        disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1
+        bg-hijau-600 text-white hover:bg-hijau-700 focus:ring-hijau-600;
     }
     .btn-ghost {
         @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition

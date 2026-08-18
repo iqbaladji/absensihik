@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import api, { errMsg } from '../../api';
 import { useAuth } from '../../stores/auth';
 import { toastOk, toastErr } from '../../toast';
@@ -9,8 +9,11 @@ import DataTable from '../../components/DataTable.vue';
 import Pagination from '../../components/Pagination.vue';
 import Modal from '../../components/Modal.vue';
 import FileUpload from '../../components/FileUpload.vue';
+import MobileListPegawai from '../../components/MobileListPegawai.vue';
 
 const auth = useAuth();
+const isPegawaiMobile = computed(() => auth.roleSlug === 'pegawai');
+function openCreate() { form.value = { tanggal_mulai: '', jumlah_hari: 90, tipe: 'melahirkan', catatan: '' }; lampiran.value = null; showForm.value = true; }
 const canCreate = auth.can('cuti_melahirkan', 'C');
 const canApprove = auth.can('cuti_melahirkan', 'A');
 
@@ -72,15 +75,30 @@ async function doApproval(status) {
 </script>
 
 <template>
-    <PageHeader title="Cuti Melahirkan" subtitle="Pengajuan cuti melahirkan">
-        <template #actions><button v-if="canCreate" class="btn-primary" @click="form = { tanggal_mulai: '', jumlah_hari: 90, tipe: 'melahirkan', catatan: '' }; lampiran = null; showForm = true">+ Ajukan</button></template>
-    </PageHeader>
-    <DataTable :columns="columns" :rows="rows" :loading="loading">
-        <template #actions="{ row }">
-            <button v-if="canApprove && row.status === 'menunggu'" class="btn-ghost btn-sm" @click="showApproval = row; catatan = ''">Review</button>
-        </template>
-    </DataTable>
-    <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    <MobileListPegawai
+        v-if="isPegawaiMobile"
+        title="Cuti Melahirkan"
+        section-title="Riwayat Cuti Melahirkan"
+        :items="rows"
+        :loading="loading"
+        :can-add="canCreate"
+        :item-title="(r) => r.tipe === 'keguguran' ? 'Cuti Keguguran' : 'Cuti Melahirkan'"
+        :item-periode="(r) => `${tanggal(r.tanggal_mulai)} — ${tanggal(r.tanggal_selesai)}`"
+        :item-alasan="(r) => r.catatan"
+        :item-status="(r) => r.status"
+        @add="openCreate"
+    />
+    <template v-else>
+        <PageHeader title="Cuti Melahirkan" subtitle="Pengajuan cuti melahirkan">
+            <template #actions><button v-if="canCreate" class="btn-hijau" @click="openCreate">+ Ajukan</button></template>
+        </PageHeader>
+        <DataTable :columns="columns" :rows="rows" :loading="loading">
+            <template #actions="{ row }">
+                <button v-if="canApprove && row.status === 'menunggu'" class="btn-ghost btn-sm" @click="showApproval = row; catatan = ''">Review</button>
+            </template>
+        </DataTable>
+        <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    </template>
 
     <Modal v-if="showForm" title="Ajukan Cuti Melahirkan" @close="showForm = false">
         <form @submit.prevent="save" class="space-y-4">
@@ -93,11 +111,18 @@ async function doApproval(status) {
             <div><label class="label">Tanggal Mulai</label><input v-model="form.tanggal_mulai" type="date" class="input" required /></div>
             <div><label class="label">Durasi (hari)</label><input v-model.number="form.jumlah_hari" type="number" class="input" min="1" max="180" required /></div>
             <div><label class="label">Catatan</label><textarea v-model="form.catatan" class="input" rows="3" /></div>
+            <div>
+                <label class="label">Pengganti (atasan langsung)</label>
+                <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                    <template v-if="auth.user?.atasan">{{ auth.user.atasan.name }}</template>
+                    <span v-else class="text-rose-600">Belum ada atasan langsung — hubungi HR.</span>
+                </div>
+            </div>
             <FileUpload label="Surat Keterangan Dokter" accept=".pdf,.jpg,.jpeg,.png" @selected="(f) => lampiran = f" />
         </form>
         <template #footer>
             <button class="btn-ghost" @click="showForm = false">Batal</button>
-            <button class="btn-primary" :disabled="saving" @click="save">{{ saving ? 'Menyimpan...' : 'Ajukan' }}</button>
+            <button class="btn-hijau" :disabled="saving" @click="save">{{ saving ? 'Menyimpan...' : 'Ajukan' }}</button>
         </template>
     </Modal>
 

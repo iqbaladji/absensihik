@@ -18,7 +18,7 @@ class CutiBesarController extends ApiController
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $query = CutiBesar::with('user:id,name,nip');
+        $query = CutiBesar::with(['user:id,name,nip', 'pengganti:id,name,nip']);
 
         if ($user->roleSlug() === 'pegawai') {
             $query->where('id_user', $user->id);
@@ -38,7 +38,7 @@ class CutiBesarController extends ApiController
 
     public function show(int $id): JsonResponse
     {
-        return response()->json(['data' => CutiBesar::with('user:id,name,nip')->findOrFail($id)]);
+        return response()->json(['data' => CutiBesar::with(['user:id,name,nip', 'pengganti:id,name,nip'])->findOrFail($id)]);
     }
 
     public function store(Request $request): JsonResponse
@@ -52,7 +52,11 @@ class CutiBesarController extends ApiController
         ]);
 
         $user = $request->user();
+        if (! $user->id_atasan) {
+            return response()->json(['message' => 'Anda belum memiliki atasan langsung sebagai pengganti. Hubungi HR.'], 422);
+        }
         $data['id_user'] = $user->id;
+        $data['id_pengganti'] = $user->id_atasan;
         $data['status'] = 'menunggu';
         $data['approval_snapshot'] = $this->approval->createSnapshot('cuti_besar', $user);
 

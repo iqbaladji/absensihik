@@ -38,9 +38,15 @@ use App\Http\Controllers\Api\Master\HariLiburController;
 use App\Http\Controllers\Api\Master\JenisIzinController;
 use App\Http\Controllers\Api\Master\JenisPengumumanController;
 use App\Http\Controllers\Api\Master\KomponenGajiController;
+use App\Http\Controllers\Api\WebAuthnController;
+use App\Http\Controllers\Api\PushController;
 
 // Auth (public)
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle-login');
+
+// WebAuthn public (login) — needs session for challenge
+Route::post('/webauthn/login/options', [WebAuthnController::class, 'loginOptions'])->middleware(['web']);
+Route::post('/webauthn/login', [WebAuthnController::class, 'login'])->middleware(['web']);
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'idle'])->group(function () {
@@ -48,6 +54,19 @@ Route::middleware(['auth:sanctum', 'idle'])->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/change-pin', [AuthController::class, 'changePin']);
+
+    // WebAuthn credential management (needs both sanctum + session for challenge)
+    Route::post('/webauthn/register/options', [WebAuthnController::class, 'registerOptions'])->middleware('web');
+    Route::post('/webauthn/register', [WebAuthnController::class, 'register'])->middleware('web');
+    Route::get('/webauthn/credentials', [WebAuthnController::class, 'credentials']);
+    Route::delete('/webauthn/credentials/{id}', [WebAuthnController::class, 'deleteCredential']);
+
+    // Web Push
+    Route::get('/push/vapid-key', [PushController::class, 'vapidKey']);
+    Route::get('/push/status', [PushController::class, 'status']);
+    Route::post('/push/subscribe', [PushController::class, 'subscribe']);
+    Route::post('/push/unsubscribe', [PushController::class, 'unsubscribe']);
+    Route::post('/push/test', [PushController::class, 'test']);
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'employee'])->middleware('perm:dashboard,R');
@@ -110,6 +129,7 @@ Route::middleware(['auth:sanctum', 'idle'])->group(function () {
     Route::post('/wfa/{id}/reject', [WfaController::class, 'reject'])->middleware('perm:wfa,A');
 
     // Izin
+    Route::get('/izin-jenis', [IzinController::class, 'jenisIzin'])->middleware('perm:izin,R');
     Route::apiResource('izin', IzinController::class)->middleware('perm:izin,R');
     Route::post('/izin/{id}/approve', [IzinController::class, 'approve'])->middleware('perm:izin,A');
     Route::post('/izin/{id}/reject', [IzinController::class, 'reject'])->middleware('perm:izin,A');

@@ -33,7 +33,7 @@ function onFilter(key, val) {
         <select
             v-for="f in filters"
             :key="f.key"
-            class="select w-auto min-w-[140px]"
+            class="select w-full sm:w-auto sm:min-w-[140px]"
             :value="filterValues[f.key]"
             @change="onFilter(f.key, $event.target.value)"
         >

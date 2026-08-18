@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import api, { errMsg } from '../../api';
 import { useAuth } from '../../stores/auth';
 import { toastOk, toastErr } from '../../toast';
@@ -8,8 +8,11 @@ import PageHeader from '../../components/PageHeader.vue';
 import DataTable from '../../components/DataTable.vue';
 import Pagination from '../../components/Pagination.vue';
 import Modal from '../../components/Modal.vue';
+import MobileListPegawai from '../../components/MobileListPegawai.vue';
 
 const auth = useAuth();
+const isPegawaiMobile = computed(() => auth.roleSlug === 'pegawai');
+function openCreate() { form.value = { tanggal: '', jam_mulai_rencana: '', jam_selesai_rencana: '', uraian_pekerjaan: '' }; showForm.value = true; }
 const canCreate = auth.can('lembur', 'C');
 const canApprove = auth.can('lembur', 'A');
 
@@ -89,17 +92,32 @@ async function selesaiLembur() {
 </script>
 
 <template>
-    <PageHeader title="Lembur" subtitle="Pengajuan dan pelaksanaan lembur">
-        <template #actions><button v-if="canCreate" class="btn-primary" @click="form = { tanggal: '', jam_mulai_rencana: '', jam_selesai_rencana: '', uraian_pekerjaan: '' }; showForm = true">+ Ajukan</button></template>
-    </PageHeader>
-    <DataTable :columns="columns" :rows="rows" :loading="loading">
-        <template #actions="{ row }">
-            <button v-if="row.status === 'disetujui' && !row.jam_mulai_aktual && row.id_user === auth.user?.id" class="btn-ghost btn-sm text-emerald-600" @click="mulaiLembur(row)">Mulai</button>
-            <button v-if="row.status === 'berlangsung' && row.jam_mulai_aktual && !row.jam_selesai_aktual && row.id_user === auth.user?.id" class="btn-ghost btn-sm text-amber-600" @click="showSelesai = row; hasilPekerjaan = ''">Selesai</button>
-            <button v-if="canApprove && row.status === 'menunggu'" class="btn-ghost btn-sm" @click="showApproval = row; catatan = ''">Review</button>
-        </template>
-    </DataTable>
-    <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    <MobileListPegawai
+        v-if="isPegawaiMobile"
+        title="Lembur"
+        section-title="Riwayat Lembur"
+        :items="rows"
+        :loading="loading"
+        :can-add="canCreate"
+        :item-title="() => 'Lembur'"
+        :item-periode="(r) => `${tanggal(r.tanggal)} · ${r.jam_mulai_rencana} — ${r.jam_selesai_rencana}`"
+        :item-alasan="(r) => r.uraian_pekerjaan"
+        :item-status="(r) => r.status"
+        @add="openCreate"
+    />
+    <template v-else>
+        <PageHeader title="Lembur" subtitle="Pengajuan dan pelaksanaan lembur">
+            <template #actions><button v-if="canCreate" class="btn-hijau" @click="openCreate">+ Ajukan</button></template>
+        </PageHeader>
+        <DataTable :columns="columns" :rows="rows" :loading="loading">
+            <template #actions="{ row }">
+                <button v-if="row.status === 'disetujui' && !row.jam_mulai_aktual && row.id_user === auth.user?.id" class="btn-ghost btn-sm text-emerald-600" @click="mulaiLembur(row)">Mulai</button>
+                <button v-if="row.status === 'berlangsung' && row.jam_mulai_aktual && !row.jam_selesai_aktual && row.id_user === auth.user?.id" class="btn-ghost btn-sm text-amber-600" @click="showSelesai = row; hasilPekerjaan = ''">Selesai</button>
+                <button v-if="canApprove && row.status === 'menunggu'" class="btn-ghost btn-sm" @click="showApproval = row; catatan = ''">Review</button>
+            </template>
+        </DataTable>
+        <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    </template>
 
     <Modal v-if="showForm" title="Ajukan Lembur" @close="showForm = false">
         <form @submit.prevent="save" class="space-y-4">
@@ -110,7 +128,7 @@ async function selesaiLembur() {
         </form>
         <template #footer>
             <button class="btn-ghost" @click="showForm = false">Batal</button>
-            <button class="btn-primary" :disabled="saving" @click="save">{{ saving ? 'Menyimpan...' : 'Ajukan' }}</button>
+            <button class="btn-hijau" :disabled="saving" @click="save">{{ saving ? 'Menyimpan...' : 'Ajukan' }}</button>
         </template>
     </Modal>
 
@@ -135,7 +153,7 @@ async function selesaiLembur() {
         </div>
         <template #footer>
             <button class="btn-ghost" @click="showSelesai = null">Batal</button>
-            <button class="btn-primary" :disabled="!hasilPekerjaan.trim()" @click="selesaiLembur">Selesai</button>
+            <button class="btn-hijau" :disabled="!hasilPekerjaan.trim()" @click="selesaiLembur">Selesai</button>
         </template>
     </Modal>
 </template>

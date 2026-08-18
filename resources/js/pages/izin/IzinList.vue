@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import api, { errMsg } from '../../api';
 import { useAuth } from '../../stores/auth';
 import { toastOk, toastErr } from '../../toast';
@@ -10,8 +10,10 @@ import Pagination from '../../components/Pagination.vue';
 import Modal from '../../components/Modal.vue';
 import SearchFilter from '../../components/SearchFilter.vue';
 import FileUpload from '../../components/FileUpload.vue';
+import MobileListPegawai from '../../components/MobileListPegawai.vue';
 
 const auth = useAuth();
+const isPegawaiMobile = computed(() => auth.roleSlug === 'pegawai');
 const canCreate = auth.can('izin', 'C');
 const canApprove = auth.can('izin', 'A');
 
@@ -52,8 +54,8 @@ async function load() {
 
 async function loadJenisIzin() {
     try {
-        const { data } = await api.get('/master/jenis-izin?per_page=200');
-        jenisIzinList.value = (data.data || data).filter((j) => j.status === 'aktif');
+        const { data } = await api.get('/izin-jenis');
+        jenisIzinList.value = data.data || [];
     } catch (_) {}
 }
 
@@ -108,17 +110,32 @@ async function cancel(row) {
 </script>
 
 <template>
-    <PageHeader title="Izin" subtitle="Pengajuan izin">
-        <template #actions><button v-if="canCreate" class="btn-primary" @click="openCreate">+ Ajukan</button></template>
-    </PageHeader>
+    <MobileListPegawai
+        v-if="isPegawaiMobile"
+        title="Izin"
+        section-title="Riwayat Izin"
+        :items="rows"
+        :loading="loading"
+        :can-add="canCreate"
+        :item-title="(r) => r.jenis_izin?.nama || 'Izin'"
+        :item-periode="(r) => `${tanggal(r.tanggal_mulai)} — ${tanggal(r.tanggal_selesai)}`"
+        :item-alasan="(r) => r.alasan"
+        :item-status="(r) => r.status"
+        @add="openCreate"
+    />
+    <template v-else>
+        <PageHeader title="Izin" subtitle="Pengajuan izin">
+            <template #actions><button v-if="canCreate" class="btn-hijau" @click="openCreate">+ Ajukan</button></template>
+        </PageHeader>
 
-    <DataTable :columns="columns" :rows="rows" :loading="loading">
-        <template #actions="{ row }">
-            <button v-if="row.status === 'menunggu' && row.id_user === auth.user?.id" class="btn-ghost btn-sm text-rose-600" @click="cancel(row)">Batal</button>
-            <button v-if="canApprove && row.status === 'menunggu'" class="btn-ghost btn-sm" @click="showApproval = row; catatan = ''">Review</button>
-        </template>
-    </DataTable>
-    <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+        <DataTable :columns="columns" :rows="rows" :loading="loading">
+            <template #actions="{ row }">
+                <button v-if="row.status === 'menunggu' && row.id_user === auth.user?.id" class="btn-ghost btn-sm text-rose-600" @click="cancel(row)">Batal</button>
+                <button v-if="canApprove && row.status === 'menunggu'" class="btn-ghost btn-sm" @click="showApproval = row; catatan = ''">Review</button>
+            </template>
+        </DataTable>
+        <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    </template>
 
     <Modal v-if="showForm" title="Ajukan Izin" @close="showForm = false">
         <form @submit.prevent="save" class="space-y-4">
@@ -136,7 +153,7 @@ async function cancel(row) {
         </form>
         <template #footer>
             <button class="btn-ghost" @click="showForm = false">Batal</button>
-            <button class="btn-primary" :disabled="saving" @click="save">{{ saving ? 'Menyimpan...' : 'Ajukan' }}</button>
+            <button class="btn-hijau" :disabled="saving" @click="save">{{ saving ? 'Menyimpan...' : 'Ajukan' }}</button>
         </template>
     </Modal>
 

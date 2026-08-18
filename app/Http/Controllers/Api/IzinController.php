@@ -206,4 +206,11 @@ class IzinController extends ApiController
 
         return response()->json(['message' => 'Pengajuan dibatalkan.', 'data' => $model]);
     }
+
+    public function jenisIzin(): JsonResponse
+    {
+        return response()->json([
+            'data' => JenisIzin::where('status', 'aktif')->orderBy('nama')->get(['id', 'kode', 'nama', 'potong_cuti', 'maks_hari', 'perlu_lampiran']),
+        ]);
+    }
 }

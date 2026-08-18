@@ -21,7 +21,7 @@ class CutiTahunanController extends ApiController
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $query = CutiTahunan::with('user:id,name,nip');
+        $query = CutiTahunan::with(['user:id,name,nip', 'pengganti:id,name,nip']);
 
         if ($user->roleSlug() === 'pegawai') {
             $query->where('id_user', $user->id);
@@ -41,7 +41,7 @@ class CutiTahunanController extends ApiController
 
     public function show(int $id): JsonResponse
     {
-        return response()->json(['data' => CutiTahunan::with('user:id,name,nip')->findOrFail($id)]);
+        return response()->json(['data' => CutiTahunan::with(['user:id,name,nip', 'pengganti:id,name,nip'])->findOrFail($id)]);
     }
 
     public function store(Request $request): JsonResponse
@@ -54,6 +54,11 @@ class CutiTahunanController extends ApiController
         ]);
 
         $user = $request->user();
+
+        if (! $user->id_atasan) {
+            return response()->json(['message' => 'Anda belum memiliki atasan langsung sebagai pengganti. Hubungi HR.'], 422);
+        }
+
         $jumlahHari = $this->cutiService->countWorkingDays(
             Carbon::parse($data['tanggal_mulai']),
             Carbon::parse($data['tanggal_selesai']),
@@ -64,6 +69,7 @@ class CutiTahunanController extends ApiController
         }
 
         $data['id_user'] = $user->id;
+        $data['id_pengganti'] = $user->id_atasan;
         $data['jumlah_hari'] = $jumlahHari;
         $data['status'] = 'menunggu';
         $data['approval_snapshot'] = $this->approval->createSnapshot('cuti_tahunan', $user);

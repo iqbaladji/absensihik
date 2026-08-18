@@ -4,20 +4,27 @@ import { useRouter } from 'vue-router';
 import { useAuth } from '../stores/auth';
 import { navGroups } from '../nav';
 import NotifBell from '../components/NotifBell.vue';
+import BottomNav from '../components/BottomNav.vue';
 
 const auth = useAuth();
 const router = useRouter();
 const sidebarOpen = ref(false);
 const expanded = ref({});
 
-const visibleGroups = computed(() =>
-    navGroups
+const isPegawaiMobile = computed(() => auth.roleSlug === 'pegawai');
+
+const visibleGroups = computed(() => {
+    const isAdmin = auth.roleSlug === 'administrator';
+    return navGroups
         .map((g) => ({
             ...g,
-            items: g.items.filter((it) => !it.modul || auth.can(it.modul)),
+            items: g.items.filter((it) => {
+                if (isAdmin && it.personal) return false;
+                return !it.modul || auth.can(it.modul);
+            }),
         }))
-        .filter((g) => g.items.length),
-);
+        .filter((g) => g.items.length);
+});
 
 function toggle(label) {
     expanded.value[label] = !expanded.value[label];
@@ -36,9 +43,11 @@ async function doLogout() {
             :class="{ 'translate-x-0': sidebarOpen }"
         >
             <div class="flex items-center gap-2 px-5 py-4">
-                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 text-lg font-bold">A</div>
+                <div class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-white/95">
+                    <img src="/hikp-logo.png" alt="HIKP" class="h-8 w-auto object-contain" />
+                </div>
                 <div>
-                    <div class="text-sm font-bold leading-tight">AbsensiHIK</div>
+                    <div class="text-sm font-bold leading-tight tracking-wide">SIHADIR</div>
                     <div class="text-[11px] text-slate-300">BPRS HIK Parahyangan</div>
                 </div>
             </div>
@@ -85,27 +94,37 @@ async function doLogout() {
         <div v-if="sidebarOpen" class="fixed inset-0 z-30 bg-black/40 lg:hidden" @click="sidebarOpen = false"></div>
 
         <div class="flex min-h-full flex-1 flex-col lg:pl-64">
-            <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur lg:px-8">
-                <button class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" @click="sidebarOpen = true">&#9776;</button>
+            <header
+                class="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-slate-200 bg-white/90 px-3 py-2.5 backdrop-blur sm:px-4 sm:py-3 lg:px-8"
+                :class="{ 'hidden lg:flex': isPegawaiMobile }"
+            >
+                <button class="-ml-1 rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" @click="sidebarOpen = true" aria-label="Buka menu">&#9776;</button>
                 <div class="hidden text-sm text-slate-500 lg:block">Kehadiran, Workforce &amp; Komunikasi Internal</div>
-                <div class="flex items-center gap-3">
+                <div class="flex min-w-0 items-center gap-2 sm:gap-3">
                     <NotifBell />
-                    <div class="text-right">
-                        <div class="text-sm font-semibold text-slate-700">{{ auth.user?.name }}</div>
-                        <div class="text-[11px] text-slate-500">
+                    <div class="hidden text-right sm:block">
+                        <div class="truncate text-sm font-semibold text-slate-700">{{ auth.user?.name }}</div>
+                        <div class="truncate text-[11px] text-slate-500">
                             {{ auth.user?.role?.nama }}<span v-if="auth.user?.kantor"> &middot; {{ auth.user.kantor.nama }}</span>
                         </div>
                     </div>
-                    <div class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-700">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-700">
                         {{ (auth.user?.name || '?').charAt(0) }}
                     </div>
-                    <button class="btn-ghost btn-sm" @click="doLogout">Keluar</button>
+                    <button class="btn-ghost btn-sm hidden sm:inline-flex" @click="doLogout">Keluar</button>
+                    <button class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 sm:hidden" @click="doLogout" aria-label="Keluar" title="Keluar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h5a2 2 0 012 2v1"/></svg>
+                    </button>
                 </div>
             </header>
 
-            <main class="flex-1 px-4 py-6 lg:px-8">
+            <main
+                class="flex-1 px-3 py-4 sm:px-4 sm:py-6 lg:px-8"
+                :class="{ 'pb-24 lg:pb-6': isPegawaiMobile }"
+            >
                 <slot />
             </main>
         </div>
+        <BottomNav v-if="isPegawaiMobile" />
     </div>
 </template>

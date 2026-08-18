@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import api, { errMsg } from '../../api';
 import { useAuth } from '../../stores/auth';
 import { toastOk, toastErr } from '../../toast';
@@ -8,8 +8,10 @@ import PageHeader from '../../components/PageHeader.vue';
 import DataTable from '../../components/DataTable.vue';
 import Pagination from '../../components/Pagination.vue';
 import Modal from '../../components/Modal.vue';
+import MobileListPegawai from '../../components/MobileListPegawai.vue';
 
 const auth = useAuth();
+const isPegawaiMobile = computed(() => auth.roleSlug === 'pegawai');
 const canCreate = auth.can('wfa', 'C');
 const canApprove = auth.can('wfa', 'A');
 
@@ -67,16 +69,31 @@ async function doApproval(status) {
 </script>
 
 <template>
-    <PageHeader title="Work From Anywhere" subtitle="Pengajuan WFA">
-        <template #actions><button v-if="canCreate" class="btn-primary" @click="openCreate">+ Ajukan</button></template>
-    </PageHeader>
-    <DataTable :columns="columns" :rows="rows" :loading="loading">
-        <template #actions="{ row }">
-            <button v-if="row.status === 'menunggu' && row.id_user === auth.user?.id" class="btn-ghost btn-sm" @click="openEdit(row)">Edit</button>
-            <button v-if="canApprove && row.status === 'menunggu'" class="btn-ghost btn-sm" @click="showApproval = row; catatan = ''">Review</button>
-        </template>
-    </DataTable>
-    <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    <MobileListPegawai
+        v-if="isPegawaiMobile"
+        title="WFA"
+        section-title="Riwayat WFA"
+        :items="rows"
+        :loading="loading"
+        :can-add="canCreate"
+        :item-title="() => 'Work From Anywhere'"
+        :item-periode="(r) => `${tanggal(r.tanggal_mulai)} — ${tanggal(r.tanggal_selesai)}`"
+        :item-alasan="(r) => r.lokasi ? `${r.lokasi} · ${r.alasan || ''}` : r.alasan"
+        :item-status="(r) => r.status"
+        @add="openCreate"
+    />
+    <template v-else>
+        <PageHeader title="Work From Anywhere" subtitle="Pengajuan WFA">
+            <template #actions><button v-if="canCreate" class="btn-hijau" @click="openCreate">+ Ajukan</button></template>
+        </PageHeader>
+        <DataTable :columns="columns" :rows="rows" :loading="loading">
+            <template #actions="{ row }">
+                <button v-if="row.status === 'menunggu' && row.id_user === auth.user?.id" class="btn-ghost btn-sm" @click="openEdit(row)">Edit</button>
+                <button v-if="canApprove && row.status === 'menunggu'" class="btn-ghost btn-sm" @click="showApproval = row; catatan = ''">Review</button>
+            </template>
+        </DataTable>
+        <Pagination :meta="meta" @go="(p) => { page = p; load(); }" />
+    </template>
 
     <Modal v-if="showForm" :title="editing ? 'Edit WFA' : 'Ajukan WFA'" @close="showForm = false">
         <form @submit.prevent="save" class="space-y-4">
@@ -87,7 +104,7 @@ async function doApproval(status) {
         </form>
         <template #footer>
             <button class="btn-ghost" @click="showForm = false">Batal</button>
-            <button class="btn-primary" :disabled="saving" @click="save">{{ saving ? 'Menyimpan...' : 'Simpan' }}</button>
+            <button class="btn-hijau" :disabled="saving" @click="save">{{ saving ? 'Menyimpan...' : 'Simpan' }}</button>
         </template>
     </Modal>
 

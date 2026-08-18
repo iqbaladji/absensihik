@@ -1,14 +1,16 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import api, { errMsg } from '../../api';
 import { useAuth } from '../../stores/auth';
 import { toastOk, toastErr } from '../../toast';
 import { tanggalJam } from '../../util';
 import PageHeader from '../../components/PageHeader.vue';
+import MobileSubHeader from '../../components/MobileSubHeader.vue';
 
 const route = useRoute();
 const auth = useAuth();
+const isPegawaiMobile = computed(() => auth.roleSlug === 'pegawai');
 const item = ref(null);
 const loading = ref(true);
 const tracking = ref(null);
@@ -47,13 +49,17 @@ async function confirmRead() {
 <template>
     <div v-if="loading" class="py-12 text-center text-slate-400">Memuat...</div>
     <template v-else-if="item">
-        <PageHeader :title="item.judul">
+        <MobileSubHeader v-if="isPegawaiMobile" title="Pengumuman" to="/pengumuman" />
+
+        <PageHeader v-if="!isPegawaiMobile" :title="item.judul">
             <template #actions>
                 <RouterLink to="/pengumuman" class="btn-ghost">Kembali</RouterLink>
             </template>
         </PageHeader>
 
-        <div class="card p-6">
+        <h1 v-if="isPegawaiMobile" class="mt-3 px-1 text-lg font-bold text-slate-800">{{ item.judul }}</h1>
+
+        <div class="card mt-3 p-4 sm:p-6">
             <div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-slate-500">
                 <span class="badge" :class="item.prioritas === 'urgent' ? 'badge-red' : item.prioritas === 'tinggi' ? 'badge-amber' : 'badge-gray'">{{ item.prioritas }}</span>
                 <span>{{ item.jenis?.nama }}</span>
@@ -64,7 +70,7 @@ async function confirmRead() {
         </div>
 
         <div v-if="item.wajib_konfirmasi && !item.sudah_dibaca" class="mt-4">
-            <button class="btn-primary" @click="confirmRead">Konfirmasi Sudah Membaca</button>
+            <button class="btn-hijau w-full py-3 text-base" @click="confirmRead">Konfirmasi Sudah Membaca</button>
         </div>
         <div v-else-if="item.wajib_konfirmasi && item.sudah_dibaca" class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
             Anda sudah mengonfirmasi pengumuman ini.

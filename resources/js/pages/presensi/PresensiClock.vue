@@ -53,16 +53,17 @@ async function clockIn() {
             device_id: navigator.userAgent.slice(0, 50),
             device_model: navigator.platform,
         };
-        if (tipe.value) payload.tipe_kehadiran = tipe.value;
+        if (tipe.value) payload.tipe = tipe.value;
         const { data } = await api.post('/presensi/clock-in', payload);
-        if (data.needs_choice) {
+        toastOk(data.message || 'Clock In berhasil');
+        loadToday();
+    } catch (e) {
+        const body = e?.response?.data;
+        if (body?.data?.needs_choice) {
             showTipeModal.value = true;
             submitting.value = false;
             return;
         }
-        toastOk(data.message || 'Clock In berhasil');
-        loadToday();
-    } catch (e) {
         toastErr(errMsg(e));
     } finally {
         submitting.value = false;
@@ -125,10 +126,10 @@ function selectTipe(t) {
                     @update="onGpsUpdate"
                 />
                 <div class="mt-6 flex gap-3">
-                    <button v-if="!sudahMasuk" class="btn-primary flex-1" :disabled="submitting || !foto || !gps" @click="clockIn">
+                    <button v-if="!sudahMasuk" class="btn-hijau flex-1 py-3 text-base shadow-sm" :disabled="submitting || !foto || !gps" @click="clockIn">
                         {{ submitting ? 'Memproses...' : 'Clock In' }}
                     </button>
-                    <button v-if="sudahMasuk" class="btn-warning flex-1" :disabled="submitting || !foto || !gps" @click="clockOut">
+                    <button v-if="sudahMasuk" class="btn-warning flex-1 py-3 text-base shadow-sm" :disabled="submitting || !foto || !gps" @click="clockOut">
                         {{ submitting ? 'Memproses...' : 'Clock Out' }}
                     </button>
                 </div>
@@ -145,9 +146,9 @@ function selectTipe(t) {
             <h3 class="text-lg font-semibold text-slate-800">Pilih Tipe Kehadiran</h3>
             <p class="mt-2 text-sm text-slate-600">Anda berada di luar radius kantor. Pilih tipe kehadiran:</p>
             <div class="mt-4 space-y-2">
-                <button class="btn-primary w-full" @click="selectTipe('dinas_luar')">Dinas Luar</button>
-                <button class="btn-primary w-full" @click="selectTipe('wfh')">WFH</button>
-                <button class="btn-primary w-full" @click="selectTipe('wfa')">WFA</button>
+                <button class="btn-hijau w-full" @click="selectTipe('dinas_luar')">Dinas Luar</button>
+                <button class="btn-hijau w-full" @click="selectTipe('wfh')">WFH</button>
+                <button class="btn-hijau w-full" @click="selectTipe('wfa')">WFA</button>
             </div>
             <button class="btn-ghost mt-3 w-full" @click="showTipeModal = false">Batal</button>
         </div>

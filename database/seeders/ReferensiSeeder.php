@@ -40,7 +40,7 @@ class ReferensiSeeder extends Seeder
                 'hari'                   => $hari,
                 'jam_masuk'              => '08:00',
                 'jam_keluar'             => '17:00',
-                'toleransi_terlambat'    => 15,
+                'toleransi_terlambat'    => 10,
                 'toleransi_pulang_awal'  => 0,
                 'is_libur'               => false,
             ]);
@@ -80,7 +80,7 @@ class ReferensiSeeder extends Seeder
                     'hari'                   => $hari,
                     'jam_masuk'              => $def['jam_masuk'],
                     'jam_keluar'             => $def['jam_keluar'],
-                    'toleransi_terlambat'    => 15,
+                    'toleransi_terlambat'    => 10,
                     'toleransi_pulang_awal'  => 0,
                     'is_libur'               => false,
                 ]);
@@ -123,7 +123,7 @@ class ReferensiSeeder extends Seeder
             ['kode' => 'IZN', 'nama' => 'Izin Pribadi',            'maks_hari' => 3,  'perlu_lampiran' => false, 'potong_cuti' => true],
             ['kode' => 'DUK', 'nama' => 'Duka/Meninggal Keluarga', 'maks_hari' => 3,  'perlu_lampiran' => true,  'potong_cuti' => false],
             ['kode' => 'NIK', 'nama' => 'Menikah',                 'maks_hari' => 3,  'perlu_lampiran' => true,  'potong_cuti' => false],
-            ['kode' => 'KHT', 'nama' => 'Khitan/Baptis Anak',      'maks_hari' => 2,  'perlu_lampiran' => true,  'potong_cuti' => false],
+            ['kode' => 'KHT', 'nama' => 'Khitan Anak',      'maks_hari' => 2,  'perlu_lampiran' => true,  'potong_cuti' => false],
         ];
 
         foreach ($jenisIzin as $item) {

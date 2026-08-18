@@ -19,7 +19,7 @@ function badgeClass(val) {
 </script>
 
 <template>
-    <div class="table-wrap">
+    <div class="hidden sm:block table-wrap">
         <table class="tbl">
             <thead>
                 <tr>
@@ -48,5 +48,27 @@ function badgeClass(val) {
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="sm:hidden space-y-2">
+        <div v-if="loading" class="rounded-xl border border-slate-200 bg-white py-8 text-center text-sm text-slate-400">Memuat...</div>
+        <div v-else-if="!rows.length" class="rounded-xl border border-slate-200 bg-white py-8 text-center text-sm text-slate-400">{{ empty }}</div>
+        <div v-for="(row, i) in rows" v-else :key="'m-' + (row.id ?? i)" class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+            <div class="divide-y divide-slate-100">
+                <div v-for="c in columns" :key="c.key" class="flex items-start justify-between gap-3 py-1.5 text-sm">
+                    <span class="shrink-0 text-xs font-medium uppercase tracking-wide text-slate-500">{{ c.label }}</span>
+                    <span class="text-right text-slate-700">
+                        <slot :name="`cell-${c.key}`" :row="row" :value="get(row, c.key)">
+                            <span v-if="c.badge" class="badge" :class="badgeClass(get(row, c.key))">{{ get(row, c.key) ?? '-' }}</span>
+                            <span v-else-if="c.format">{{ c.format(get(row, c.key), row) }}</span>
+                            <span v-else>{{ get(row, c.key) ?? '-' }}</span>
+                        </slot>
+                    </span>
+                </div>
+            </div>
+            <div v-if="$slots.actions" class="mt-2 flex flex-wrap justify-end gap-1.5 border-t border-slate-100 pt-2">
+                <slot name="actions" :row="row" />
+            </div>
+        </div>
     </div>
 </template>

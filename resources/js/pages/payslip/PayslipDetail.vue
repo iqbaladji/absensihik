@@ -1,12 +1,16 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import api, { errMsg } from '../../api';
 import { toastErr } from '../../toast';
 import { rupiah } from '../../util';
+import { useAuth } from '../../stores/auth';
 import PageHeader from '../../components/PageHeader.vue';
+import MobileSubHeader from '../../components/MobileSubHeader.vue';
 
 const route = useRoute();
+const auth = useAuth();
+const isPegawaiMobile = computed(() => auth.roleSlug === 'pegawai');
 const item = ref(null);
 const loading = ref(true);
 
@@ -29,14 +33,22 @@ function download() {
 <template>
     <div v-if="loading" class="py-12 text-center text-slate-400">Memuat...</div>
     <template v-else-if="item">
-        <PageHeader :title="`Slip Gaji — ${item.periode?.nama || ''}`">
+        <MobileSubHeader v-if="isPegawaiMobile" title="Slip Gaji" to="/payslip">
+            <template #right>
+                <button class="rounded-full p-1.5 hover:bg-white/10" @click="download" aria-label="Download PDF">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
+                </button>
+            </template>
+        </MobileSubHeader>
+
+        <PageHeader v-if="!isPegawaiMobile" :title="`Slip Gaji — ${item.periode?.nama || ''}`">
             <template #actions>
                 <RouterLink to="/payslip" class="btn-ghost">Kembali</RouterLink>
-                <button class="btn-primary" @click="download">Download PDF</button>
+                <button class="btn-hijau" @click="download">Download PDF</button>
             </template>
         </PageHeader>
 
-        <div class="card p-6">
+        <div class="card mt-3 p-4 pb-24 sm:p-6">
             <div class="mb-6 border-b border-slate-100 pb-4">
                 <div class="text-sm text-slate-500">{{ item.user?.name }} &middot; {{ item.user?.nip }}</div>
                 <div class="text-sm text-slate-500">{{ item.periode?.nama }} — {{ item.periode?.bulan }}/{{ item.periode?.tahun }}</div>
@@ -71,9 +83,9 @@ function download() {
                 </div>
             </div>
 
-            <div class="mt-6 rounded-lg bg-brand-50 p-4 text-center">
+            <div class="mt-6 rounded-lg p-4 text-center" :class="isPegawaiMobile ? 'bg-hijau-50' : 'bg-brand-50'">
                 <div class="text-sm text-slate-500">Gaji Bersih</div>
-                <div class="text-3xl font-bold text-brand-700">{{ rupiah(item.gaji_bersih) }}</div>
+                <div class="text-2xl font-bold sm:text-3xl" :class="isPegawaiMobile ? 'text-hijau-700' : 'text-brand-700'">{{ rupiah(item.gaji_bersih) }}</div>
             </div>
         </div>
     </template>

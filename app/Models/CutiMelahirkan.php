@@ -10,7 +10,7 @@ class CutiMelahirkan extends Model
     protected $table = 't_cuti_melahirkan';
 
     protected $fillable = [
-        'id_user', 'tanggal_mulai', 'tanggal_selesai',
+        'id_user', 'id_pengganti', 'tanggal_mulai', 'tanggal_selesai',
         'jumlah_hari', 'tipe', 'catatan', 'lampiran', 'status', 'approval_snapshot',
     ];
 
@@ -24,5 +24,10 @@ class CutiMelahirkan extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function pengganti(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id_pengganti');
     }
 }

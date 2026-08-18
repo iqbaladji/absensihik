@@ -5,6 +5,9 @@ const routes = [
     { path: '/login', name: 'login', component: () => import('../pages/Login.vue'), meta: { public: true } },
 
     { path: '/', name: 'dashboard', component: () => import('../pages/dashboard/DashboardEmployee.vue'), meta: { modul: 'dashboard' } },
+    { path: '/profil', name: 'profil', component: () => import('../pages/Profil.vue') },
+    { path: '/ubah-pin', name: 'ubah-pin', component: () => import('../pages/UbahPin.vue') },
+    { path: '/cuti', name: 'cuti-hub', component: () => import('../pages/cuti/CutiHub.vue') },
     { path: '/dashboard/supervisor', name: 'dashboard-supervisor', component: () => import('../pages/dashboard/DashboardSupervisor.vue'), meta: { modul: 'dashboard_supervisor' } },
     { path: '/dashboard/hr', name: 'dashboard-hr', component: () => import('../pages/dashboard/DashboardHr.vue'), meta: { modul: 'dashboard_hr' } },
 

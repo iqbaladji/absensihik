@@ -21,7 +21,7 @@ class BlockLeaveController extends ApiController
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $query = BlockLeave::with(['user:id,name,nip', 'periode']);
+        $query = BlockLeave::with(['user:id,name,nip', 'periode', 'pengganti:id,name,nip']);
 
         if ($user->roleSlug() === 'pegawai') {
             $query->where('id_user', $user->id);
@@ -42,7 +42,7 @@ class BlockLeaveController extends ApiController
     public function show(int $id): JsonResponse
     {
         return response()->json([
-            'data' => BlockLeave::with(['user:id,name,nip', 'periode'])->findOrFail($id),
+            'data' => BlockLeave::with(['user:id,name,nip', 'periode', 'pengganti:id,name,nip'])->findOrFail($id),
         ]);
     }
 
@@ -56,6 +56,9 @@ class BlockLeaveController extends ApiController
         ]);
 
         $user = $request->user();
+        if (! $user->id_atasan) {
+            return response()->json(['message' => 'Anda belum memiliki atasan langsung sebagai pengganti. Hubungi HR.'], 422);
+        }
         $start = Carbon::parse($data['tanggal_mulai']);
         if (empty($data['tanggal_selesai'])) {
             $data['tanggal_selesai'] = $this->cutiService->addWorkingDays($start, 4)->toDateString();
@@ -72,6 +75,7 @@ class BlockLeaveController extends ApiController
         }
 
         $data['id_user'] = $user->id;
+        $data['id_pengganti'] = $user->id_atasan;
         $data['jumlah_hari_kerja'] = 5;
         $data['status'] = 'menunggu';
         $data['approval_snapshot'] = $this->approval->createSnapshot('block_leave', $user);
