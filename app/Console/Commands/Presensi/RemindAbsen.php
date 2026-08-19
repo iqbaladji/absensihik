@@ -20,7 +20,7 @@ class RemindAbsen extends Command
         [$judul, $pesan, $filter] = match ($slot) {
             'pagi' => [
                 'Selamat pagi! ☀️',
-                'Jangan lupa absen masuk sebelum jam 08:10.',
+                'Jangan lupa absen masuk sebelum jam 08:00.',
                 fn ($q) => $q,
             ],
             'telat' => [
