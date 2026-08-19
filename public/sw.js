@@ -1,5 +1,5 @@
 // SIHADIR Service Worker — shell cache + web push
-const CACHE = 'sihadir-shell-v3';
+const CACHE = 'sihadir-shell-v4';
 const SHELL = [
     '/',
     '/manifest.webmanifest',
@@ -54,15 +54,22 @@ self.addEventListener('push', (event) => {
         data = { title: 'SIHADIR', body: event.data?.text?.() || 'Notifikasi baru' };
     }
     const title = data.title || 'SIHADIR';
+    const isAdzan = /Waktu Sholat/i.test(title);
     const options = {
         body: data.body || '',
         icon: '/icons/icon-192.png',
         badge: '/icons/icon-192.png',
-        tag: data.tag || 'sihadir',
-        data: { url: data.url || '/' },
-        vibrate: [100, 50, 100],
+        tag: isAdzan ? 'adzan' : (data.tag || 'sihadir'),
+        data: { url: data.url || '/', adzan: isAdzan },
+        vibrate: isAdzan ? [400, 200, 400, 200, 400] : [100, 50, 100],
     };
-    event.waitUntil(self.registration.showNotification(title, options));
+    const promises = [self.registration.showNotification(title, options)];
+    if (isAdzan) {
+        promises.push(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+            for (const client of list) client.postMessage({ type: 'adzan', title, body: data.body });
+        }));
+    }
+    event.waitUntil(Promise.all(promises));
 });
 
 self.addEventListener('notificationclick', (event) => {

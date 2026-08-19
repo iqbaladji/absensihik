@@ -21,3 +21,16 @@ setUnauthorizedHandler(() => {
 });
 
 app.mount('#app');
+
+// Adzan foreground playback: SW postMessage → play audio if app is open.
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        const msg = event.data || {};
+        if (msg.type === 'adzan') {
+            try {
+                const audio = new Audio('/Sound/ATHAN-ALAFASY.mp3');
+                audio.play().catch(() => {});
+            } catch (_) {}
+        }
+    });
+}

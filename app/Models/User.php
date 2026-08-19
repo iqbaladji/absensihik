@@ -18,7 +18,7 @@ class User extends Authenticatable implements WebAuthnAuthenticatable
     protected $fillable = [
         'name', 'username', 'email', 'nip', 'password',
         'id_role', 'id_kantor', 'id_unit', 'id_jabatan', 'id_atasan', 'id_jadwal',
-        'pin_payslip', 'device_id', 'device_model', 'device_registered_at',
+        'pin_payslip', 'adzan_notif', 'device_id', 'device_model', 'device_registered_at',
         'status', 'last_activity_at',
     ];
 

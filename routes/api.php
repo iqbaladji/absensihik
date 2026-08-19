@@ -67,6 +67,8 @@ Route::middleware(['auth:sanctum', 'idle'])->group(function () {
     Route::post('/push/subscribe', [PushController::class, 'subscribe']);
     Route::post('/push/unsubscribe', [PushController::class, 'unsubscribe']);
     Route::post('/push/test', [PushController::class, 'test']);
+    Route::get('/push/adzan', [PushController::class, 'adzanStatus']);
+    Route::post('/push/adzan', [PushController::class, 'toggleAdzan']);
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'employee'])->middleware('perm:dashboard,R');

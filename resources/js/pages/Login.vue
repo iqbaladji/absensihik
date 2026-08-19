@@ -5,6 +5,7 @@ import { useAuth } from '../stores/auth';
 import { errMsg } from '../api';
 import { toastOk, toastErr } from '../toast';
 import { isBiometricSupported, loginBiometric } from '../webauthn';
+import KiblatJadwal from '../components/KiblatJadwal.vue';
 
 const auth = useAuth();
 const router = useRouter();
@@ -14,15 +15,24 @@ const form = ref({ username: localStorage.getItem('sihadir_last_username') || ''
 const loading = ref(false);
 const bioLoading = ref(false);
 const bioSupported = ref(false);
+const showKiblat = ref(false);
 
 onMounted(() => { bioSupported.value = isBiometricSupported(); });
+
+function salamAwal(nama) {
+    const h = new Date().getHours();
+    const waktu = h < 11 ? 'pagi' : h < 15 ? 'siang' : h < 18 ? 'sore' : 'malam';
+    const emoji = h < 11 ? '☀️' : h < 15 ? '🌤️' : h < 18 ? '🌇' : '🌙';
+    const nick = (nama || '').split(' ')[0] || 'kang';
+    return `Selamat ${waktu}, ${nick}! ${emoji} Semangat berkarya hari ini 💚`;
+}
 
 async function submit() {
     loading.value = true;
     try {
         await auth.login(form.value.username, form.value.password);
         localStorage.setItem('sihadir_last_username', form.value.username);
-        toastOk('Login berhasil');
+        toastOk(salamAwal(auth.user?.name));
         router.push(route.query.redirect || '/');
     } catch (e) {
         toastErr(errMsg(e, 'Login gagal. Periksa username dan password.'));
@@ -41,7 +51,7 @@ async function loginBio() {
         const payload = res.data || res;
         auth.setSession(payload.token, payload.user);
         localStorage.setItem('sihadir_last_username', form.value.username);
-        toastOk('Login biometrik berhasil');
+        toastOk(salamAwal(payload.user?.name));
         router.push(route.query.redirect || '/');
     } catch (e) {
         toastErr(errMsg(e, 'Login biometrik gagal.'));
@@ -87,6 +97,13 @@ async function loginBio() {
                     {{ bioLoading ? 'Memindai...' : 'Login dengan Biometrik' }}
                 </button>
             </div>
+
+            <button type="button"
+                    class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg py-2 text-sm font-medium text-hijau-700 hover:bg-hijau-50 active:bg-hijau-100"
+                    @click="showKiblat = true">
+                🕋 Kiblat & Jadwal Sholat
+            </button>
         </div>
+        <KiblatJadwal v-if="showKiblat" @close="showKiblat = false" />
     </div>
 </template>

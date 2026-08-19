@@ -51,6 +51,19 @@ class PushController extends ApiController
         return response()->json(['enabled' => $count > 0, 'count' => $count]);
     }
 
+    public function toggleAdzan(Request $request): JsonResponse
+    {
+        $data = $request->validate(['aktif' => 'required|boolean']);
+        $user = $request->user();
+        $user->update(['adzan_notif' => $data['aktif']]);
+        return response()->json(['message' => $data['aktif'] ? 'Notif adzan aktif.' : 'Notif adzan mati.', 'aktif' => (bool) $user->adzan_notif]);
+    }
+
+    public function adzanStatus(Request $request): JsonResponse
+    {
+        return response()->json(['aktif' => (bool) $request->user()->adzan_notif]);
+    }
+
     public function test(Request $request, PushService $push): JsonResponse
     {
         $push->sendToUser(

@@ -6,6 +6,7 @@ import { toastOk, toastErr } from '../toast';
 import { errMsg } from '../api';
 import { isBiometricSupported, registerBiometric, listCredentials, deleteCredential } from '../webauthn';
 import { isPushSupported, getPushStatus, enablePush, disablePush, testPush } from '../push';
+import api from '../api';
 
 const auth = useAuth();
 const router = useRouter();
@@ -17,6 +18,8 @@ const bioBusy = ref(false);
 const pushSupported = ref(false);
 const pushEnabled = ref(false);
 const pushBusy = ref(false);
+const adzanAktif = ref(false);
+const adzanBusy = ref(false);
 
 onMounted(async () => {
     bioSupported.value = isBiometricSupported();
@@ -29,7 +32,34 @@ onMounted(async () => {
             pushEnabled.value = st.enabled;
         } catch (_) {}
     }
+    try {
+        const { data } = await api.get('/push/adzan');
+        adzanAktif.value = !!data.aktif;
+    } catch (_) {}
 });
+
+async function toggleAdzan() {
+    adzanBusy.value = true;
+    try {
+        const { data } = await api.post('/push/adzan', { aktif: !adzanAktif.value });
+        adzanAktif.value = !!data.aktif;
+        toastOk(data.message || 'Preferensi disimpan.');
+    } catch (e) {
+        toastErr(errMsg(e));
+    } finally {
+        adzanBusy.value = false;
+    }
+}
+
+let adzanAudio = null;
+function previewAdzan() {
+    try {
+        if (!adzanAudio) adzanAudio = new Audio('/Sound/ATHAN-ALAFASY.mp3');
+        if (!adzanAudio.paused) { adzanAudio.pause(); adzanAudio.currentTime = 0; return; }
+        adzanAudio.currentTime = 0;
+        adzanAudio.play().catch(() => toastErr('Tap tombol lagi untuk memutar audio (kebijakan browser).'));
+    } catch (_) {}
+}
 
 async function togglePush() {
     pushBusy.value = true;
@@ -157,6 +187,31 @@ async function doLogout() {
                         </button>
                         <button v-if="pushEnabled" class="rounded-full border border-hijau-600 px-4 text-sm font-semibold text-hijau-700 active:bg-hijau-50" @click="doTestPush">Test</button>
                     </div>
+                </div>
+
+                <div v-if="pushSupported && pushEnabled" class="rounded-xl bg-white p-4 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-hijau-100 text-hijau-700">🕌</div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="text-sm font-semibold text-slate-800">Notif Adzan</div>
+                                <button type="button" role="switch" :aria-checked="adzanAktif" :disabled="adzanBusy"
+                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition"
+                                        :class="adzanAktif ? 'bg-hijau-600' : 'bg-slate-300'"
+                                        @click="toggleAdzan">
+                                    <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition"
+                                          :class="adzanAktif ? 'translate-x-5' : 'translate-x-0.5'"></span>
+                                </button>
+                            </div>
+                            <div class="text-xs text-slate-500">Kirim notif tiap masuk waktu sholat sesuai kantor Anda.</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 rounded-lg bg-amber-50 p-2.5 text-[11px] leading-relaxed text-amber-800">
+                        ⚠️ Suara adzan penuh hanya berbunyi kalau app sedang dibuka. Saat app tertutup, HP cuma bunyi notif standar (batasan browser).
+                    </div>
+                    <button class="mt-2 w-full rounded-full border border-hijau-600 py-2 text-xs font-semibold text-hijau-700 active:bg-hijau-50" @click="previewAdzan">
+                        ▶ Putar / Stop Preview Adzan
+                    </button>
                 </div>
 
                 <div v-if="bioSupported" class="rounded-xl bg-white p-4 shadow-sm">

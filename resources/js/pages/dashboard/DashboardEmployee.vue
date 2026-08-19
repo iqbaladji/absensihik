@@ -41,6 +41,33 @@ const tanggalHariIni = computed(() => {
     return `${namaHari[d.getDay()]}, ${d.getDate()} ${namaBulan[d.getMonth()]} ${d.getFullYear()}`;
 });
 
+const salam = computed(() => {
+    const h = new Date().getHours();
+    if (h < 11) return { text: 'Selamat pagi', emoji: '☀️' };
+    if (h < 15) return { text: 'Selamat siang', emoji: '🌤️' };
+    if (h < 18) return { text: 'Selamat sore', emoji: '🌇' };
+    return { text: 'Selamat malam', emoji: '🌙' };
+});
+
+const quotes = [
+    'Rezeki dijemput, bukan ditunggu. Semangat! 💪',
+    'Konsisten itu kunci — sedikit tapi rutin. 🌱',
+    'Jangan lupa senyum, energi positif menular. 😊',
+    'Kerja pintar > kerja keras. Fokus & tenang. ✍️',
+    'Hari produktif dimulai dari niat yang baik. ✨',
+    'Waktu adalah amanah, gunakan sebaik-baiknya. ⏱️',
+    'Sekecil apa pun langkahmu hari ini, tetap berharga. 🎯',
+    'Alhamdulillah masih diberi kesempatan berkarya. 🤲',
+    'Semangat! Rezekimu di ujung ikhtiar. 🚀',
+    'Nikmati proses, hasil akan mengikuti. 🌤️',
+];
+
+const quoteHariIni = computed(() => {
+    const d = new Date();
+    const idx = (d.getFullYear() * 366 + d.getMonth() * 31 + d.getDate()) % quotes.length;
+    return quotes[idx];
+});
+
 const canApproveAny = ['izin', 'cuti_tahunan', 'cuti_besar', 'cuti_melahirkan', 'block_leave', 'lembur', 'wfh', 'wfa', 'dinas_luar']
     .some((m) => auth.can(m, 'A'));
 
@@ -104,9 +131,10 @@ function jamKerja(row) {
         <div class="relative bg-gradient-to-b from-hijau-500 to-hijau-700 px-5 pb-16 pt-6 text-white"
              style="border-bottom-left-radius: 40% 24px; border-bottom-right-radius: 40% 24px;">
             <div class="flex items-start justify-between">
-                <div>
-                    <div class="text-lg font-semibold leading-tight">{{ auth.user?.name || '-' }}</div>
-                    <div class="text-sm text-white/80">{{ auth.user?.role?.nama }}<span v-if="auth.user?.kantor"> · {{ auth.user.kantor.nama }}</span></div>
+                <div class="min-w-0">
+                    <div class="text-sm text-white/85">{{ salam.text }}, {{ salam.emoji }}</div>
+                    <div class="truncate text-lg font-semibold leading-tight">{{ (auth.user?.name || '-').split(' ')[0] }}</div>
+                    <div class="text-xs text-white/80">{{ auth.user?.role?.nama }}<span v-if="auth.user?.kantor"> · {{ auth.user.kantor.nama }}</span></div>
                 </div>
                 <NotifBell variant="light" />
             </div>
@@ -157,6 +185,12 @@ function jamKerja(row) {
             </div>
             <span class="text-slate-400">›</span>
         </RouterLink>
+
+        <!-- Motivational quote -->
+        <div class="mx-4 mt-3 flex items-center gap-3 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/60 px-4 py-3">
+            <div class="text-xl">💡</div>
+            <div class="text-xs italic leading-relaxed text-slate-700">{{ quoteHariIni }}</div>
+        </div>
 
         <!-- Menu grid -->
         <div class="mt-4 grid grid-cols-4 gap-3 px-4">
