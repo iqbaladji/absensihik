@@ -44,16 +44,16 @@ use App\Http\Controllers\Api\PushController;
 // Auth (public)
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle-login');
 
-// WebAuthn public (login) — needs session for challenge
-Route::post('/webauthn/login/options', [WebAuthnController::class, 'loginOptions'])->middleware(['web']);
-Route::post('/webauthn/login', [WebAuthnController::class, 'login'])->middleware(['web']);
+// WebAuthn public (login) — needs session for challenge; rate-limited to slow down abuse
+Route::post('/webauthn/login/options', [WebAuthnController::class, 'loginOptions'])->middleware(['web', 'throttle:10,1']);
+Route::post('/webauthn/login', [WebAuthnController::class, 'login'])->middleware(['web', 'throttle:10,1']);
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'idle'])->group(function () {
     // Auth
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
-    Route::post('/auth/change-pin', [AuthController::class, 'changePin']);
+    Route::post('/auth/change-pin', [AuthController::class, 'changePin'])->middleware('throttle:5,1');
 
     // WebAuthn credential management (needs both sanctum + session for challenge)
     Route::post('/webauthn/register/options', [WebAuthnController::class, 'registerOptions'])->middleware('web');

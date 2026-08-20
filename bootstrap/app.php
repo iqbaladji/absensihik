@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\EnforceIdleTimeout;
+use App\Http\Middleware\ForceHttpsInProduction;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\ThrottleLogin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'idle' => EnforceIdleTimeout::class,
             'throttle-login' => ThrottleLogin::class,
         ]);
+        // Global security middleware: prepend to run for every request.
+        $middleware->prepend(SecurityHeaders::class);
+        $middleware->prepend(ForceHttpsInProduction::class);
         $middleware->validateCsrfTokens(except: [
             'api/webauthn/*',
         ]);

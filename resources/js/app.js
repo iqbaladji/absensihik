@@ -22,8 +22,13 @@ setUnauthorizedHandler(() => {
 
 app.mount('#app');
 
-// Adzan foreground playback: SW postMessage → play audio if app is open.
+// Service worker registration (moved from inline script for CSP compliance).
 if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+
+    // Adzan foreground playback: SW postMessage → play audio if app is open.
     navigator.serviceWorker.addEventListener('message', (event) => {
         const msg = event.data || {};
         if (msg.type === 'adzan') {
