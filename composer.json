@@ -8,8 +8,8 @@
     "require": {
         "php": "^8.4",
         "barryvdh/laravel-dompdf": "^3.1",
-        "laragear/webauthn": "^5.0",
         "laravel/framework": "^13.26",
+        "laravel/passkeys": "^0.2.1",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "minishlink/web-push": "^11.0"

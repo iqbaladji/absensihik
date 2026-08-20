@@ -38,15 +38,15 @@ use App\Http\Controllers\Api\Master\HariLiburController;
 use App\Http\Controllers\Api\Master\JenisIzinController;
 use App\Http\Controllers\Api\Master\JenisPengumumanController;
 use App\Http\Controllers\Api\Master\KomponenGajiController;
-use App\Http\Controllers\Api\WebAuthnController;
+use App\Http\Controllers\Api\PasskeyController;
 use App\Http\Controllers\Api\PushController;
 
 // Auth (public)
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle-login');
 
-// WebAuthn public (login) — needs session for challenge; rate-limited to slow down abuse
-Route::post('/webauthn/login/options', [WebAuthnController::class, 'loginOptions'])->middleware(['web', 'throttle:10,1']);
-Route::post('/webauthn/login', [WebAuthnController::class, 'login'])->middleware(['web', 'throttle:10,1']);
+// Passkey public (login) — needs session for challenge; rate-limited to slow down abuse
+Route::post('/webauthn/login/options', [PasskeyController::class, 'loginOptions'])->middleware(['web', 'throttle:10,1']);
+Route::post('/webauthn/login', [PasskeyController::class, 'login'])->middleware(['web', 'throttle:10,1']);
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'idle'])->group(function () {
@@ -55,11 +55,11 @@ Route::middleware(['auth:sanctum', 'idle'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/change-pin', [AuthController::class, 'changePin'])->middleware('throttle:5,1');
 
-    // WebAuthn credential management (needs both sanctum + session for challenge)
-    Route::post('/webauthn/register/options', [WebAuthnController::class, 'registerOptions'])->middleware('web');
-    Route::post('/webauthn/register', [WebAuthnController::class, 'register'])->middleware('web');
-    Route::get('/webauthn/credentials', [WebAuthnController::class, 'credentials']);
-    Route::delete('/webauthn/credentials/{id}', [WebAuthnController::class, 'deleteCredential']);
+    // Passkey (WebAuthn) credential management — session used untuk challenge storage
+    Route::post('/webauthn/register/options', [PasskeyController::class, 'registerOptions'])->middleware('web');
+    Route::post('/webauthn/register', [PasskeyController::class, 'register'])->middleware('web');
+    Route::get('/webauthn/credentials', [PasskeyController::class, 'credentials']);
+    Route::delete('/webauthn/credentials/{id}', [PasskeyController::class, 'deleteCredential']);
 
     // Web Push
     Route::get('/push/vapid-key', [PushController::class, 'vapidKey']);

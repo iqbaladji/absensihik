@@ -33,7 +33,8 @@ export async function registerBiometric() {
     const { data: options } = await wa.post('/webauthn/register/options');
     // simplewebauthn expects the PublicKeyCredentialCreationOptionsJSON format.
     const attResp = await startRegistration({ optionsJSON: options });
-    const { data } = await wa.post('/webauthn/register', attResp);
+    const alias = `${navigator.platform || 'Perangkat'} · ${new Date().toLocaleDateString('id-ID')}`;
+    const { data } = await wa.post('/webauthn/register', { name: alias.slice(0, 60), credential: attResp });
     return data;
 }
 
@@ -44,7 +45,7 @@ export async function loginBiometric(username) {
 
     const { data: options } = await wa.post('/webauthn/login/options', { username });
     const asseResp = await startAuthentication({ optionsJSON: options });
-    const { data } = await wa.post('/webauthn/login', asseResp);
+    const { data } = await wa.post('/webauthn/login', { credential: asseResp });
     return data;
 }
 

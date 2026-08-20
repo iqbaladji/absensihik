@@ -7,13 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laragear\WebAuthn\Contracts\WebAuthnAuthenticatable;
-use Laragear\WebAuthn\WebAuthnAuthentication;
+use Laravel\Passkeys\Contracts\PasskeyUser;
+use Laravel\Passkeys\PasskeyAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements WebAuthnAuthenticatable
+class User extends Authenticatable implements PasskeyUser
 {
-    use HasApiTokens, HasFactory, Notifiable, WebAuthnAuthentication;
+    use HasApiTokens, HasFactory, Notifiable, PasskeyAuthenticatable;
+
+    public function getPasskeyUsername(): string
+    {
+        return $this->username ?? (string) $this->getAuthIdentifier();
+    }
 
     protected $fillable = [
         'name', 'username', 'email', 'nip', 'password',
